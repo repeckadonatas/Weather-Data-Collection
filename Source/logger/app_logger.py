@@ -6,7 +6,7 @@ from datetime import datetime
 
 formatter = logging.Formatter('%(asctime)s :: %(name)s :: %(levelname)s :: %(funcName)s :: %(message)s')
 path_to_logs = "logs/"
-log_file = path_to_logs + "app_logger_" + datetime.today().strftime("%Y%m%d") + ".logs"
+log_file = path_to_logs + "app_logger_" + datetime.today().strftime("%Y%m%d") + ".log"
 
 
 def get_console_handler():
@@ -25,7 +25,7 @@ def get_console_handler():
 def get_file_handler():
     """
     Creates a file handler object that stores logs outputs.
-    :return: returns logs file
+    :return: returns .logs file
     """
     file_handler = RotatingFileHandler(log_file)
     file_handler.setFormatter(formatter)

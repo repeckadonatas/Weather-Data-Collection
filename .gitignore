@@ -4,4 +4,9 @@
 out
 gen
 logs/*.logs
+logs/*.log
+logs/*.txt
 Source/logger/__pycache__
+Source/db_functions/__pycache__
+Source/db_con_config/__pycache__
+Source/credentials/credentials.ini
