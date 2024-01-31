@@ -1,7 +1,8 @@
 import psycopg
 import Source.db_con_config as dbc
 import Source.logger as log
-# from tabulate import tabulate
+from tabulate import tabulate
+
 
 db_logger = log.app_logger(__name__)
 
@@ -30,9 +31,10 @@ class MyDatabase:
         """
 
         try:
-            self.user = input('Enter username: ')
-            self.password = input('Enter password: ')
-            self.conn = psycopg.connect(**self.params, user=self.user, password=self.password)
+            # self.user = input('Enter username: ')
+            # self.password = input('Enter password: ')
+            # self.conn = psycopg.connect(**self.params, user=self.user, password=self.password)
+            self.conn = psycopg.connect(**self.params)  # remove after project completion
             self.conn.autocommit = True
             self.cursor = self.conn.cursor()
             db_logger.info("Connected to the database")

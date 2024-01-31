@@ -5,7 +5,7 @@ import Source.logger as log
 parser_logger = log.app_logger(__name__)
 
 FILENAME = 'Source/credentials/credentials.ini'
-SECTION = 'turing-projects'
+SECTION = 'turing-projects-2'   # change after completion of project
 
 
 def get_config(filename=FILENAME, section=SECTION):
