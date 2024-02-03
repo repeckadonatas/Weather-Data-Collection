@@ -1,8 +1,10 @@
 import requests
 import pandas as pd
 import json
+import Source.logger as log
 from tabulate import tabulate
 
+# api_logger = log.app_logger(__name__)
 
 locations = {"Istanbul, Turkey": [41.01384, 28.94966],
              "London, United Kingdom": [51.50853, -0.12574],
@@ -30,7 +32,7 @@ for city in locations:
     print(response)
     print(json_response, '\n')
 
-    with open('Source/misc/' + city + '_response.json', 'w', encoding='utf-8') as f:
+    with open('../data/input/' + city + '_response.json', 'w', encoding='utf-8') as f:
         json.dump(json_response, f, ensure_ascii=False, indent=4)
 
     # df = pd.json_normalize(json_response)

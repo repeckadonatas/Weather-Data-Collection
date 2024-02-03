@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 formatter = logging.Formatter('%(asctime)s :: %(name)s :: %(levelname)s :: %(funcName)s :: %(message)s')
-path_to_logs = "Source/logs/"
+path_to_logs = "Source/logs/"  #fix PATH errors to log/ folder. Needs to be reached by any file from Source/ folder
 log_file = path_to_logs + "app_logger_" + datetime.today().strftime("%Y%m%d") + ".log"
 
 

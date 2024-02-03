@@ -10,5 +10,5 @@ if __name__ == '__main__':
         main_logger.info('Hello World')
 
     with open('Source/locations/locations.txt', 'r', encoding='utf-8') as file:
-        lines = file.readlines()
-        main_logger.info('Locations: \n%s', lines)
+        lines = file.read()
+        main_logger.info('Locations: \n%s\n', lines)

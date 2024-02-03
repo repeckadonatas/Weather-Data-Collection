@@ -10,4 +10,5 @@ Source/logger/__pycache__
 Source/db_functions/__pycache__
 Source/db_con_config/__pycache__
 Source/credentials/*
-Source/misc/*.json
+Source/data/input/*.json
+Source/data_cleaning/.ipynb_checkpoints
