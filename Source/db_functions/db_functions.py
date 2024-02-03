@@ -7,8 +7,9 @@ from tabulate import tabulate
 db_logger = log.app_logger(__name__)
 
 """
-Context manager for working with database.
-Functions are used in a terminal by running the "main.py" file.
+Database connection functions.
+Used to create a connection with a database
+and pass data to it.
 """
 
 

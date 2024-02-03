@@ -8,3 +8,7 @@ if __name__ == '__main__':
     with MyDatabase() as db:
 
         main_logger.info('Hello World')
+
+    with open('Source/locations/locations.txt', 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+        main_logger.info('Locations: \n%s', lines)
