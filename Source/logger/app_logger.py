@@ -1,11 +1,12 @@
 import sys
+import os
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
 
 formatter = logging.Formatter('%(asctime)s :: %(name)s :: %(levelname)s :: %(funcName)s :: %(message)s')
-path_to_logs = "Source/logs/"  #fix PATH errors to log/ folder. Needs to be reached by any file from Source/ folder
+path_to_logs = "Source/logs/"  #fix PATH errors to log/ folder. Needs to be reached by any file from Source/ folder (os lib????)
 log_file = path_to_logs + "app_logger_" + datetime.today().strftime("%Y%m%d") + ".log"
 
 
