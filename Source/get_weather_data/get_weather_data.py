@@ -1,5 +1,7 @@
 import requests
 import json
+import pandas as pd
+from tabulate import tabulate
 import Source.logger as log
 
 # api_logger = log.app_logger(__name__)
