@@ -1,9 +1,11 @@
+import os
 import requests
 import json
 import pandas as pd
 from tabulate import tabulate
 import Source.logger as log
 
+# os.chdir('../logs')
 # api_logger = log.app_logger(__name__)
 
 # Should be in a separate file!!!

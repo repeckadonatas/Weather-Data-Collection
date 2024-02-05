@@ -71,46 +71,19 @@ class MyDatabase:
         except (Exception, AttributeError) as err:
             db_logger.error("Connection was not closed: %s", err)
 
-    def test_connection(self):
+    def create_tables(self):
         """
-        Testing connection with the database.
-        :return: If successful, returns database version
-                and connection parameters.
-                Upon failure to connect, returns an error.
+        Creates a table in a database if it does not exist.
         """
-        self.cursor.execute("""SELECT version()""")
-        self.db_version = self.cursor.fetchone()
-        db_logger.info('PostgreSQL version: %s\n', self.db_version)
-        db_logger.info('PostgreSQL connection properties: %s\n', self.conn.get_dsn_parameters())
+        try:
+            self.historical_weather_data = \
+                """CREATE TABLE IF NOT EXISTS historical_weather_data (id INT PRIMARY KEY, weather VARCHAR(100),
+                base VARCHAR, visibility INT, dt DATE, timezone INT, id INT);"""
 
-    def create_table(self):
-        """
-        Creates a table in a database.
-        Enter table name and column name(s) with datatype.
-        The command will continue to ask for inputs
-        until it is interrupted by a KeyboardInterrupt (depends on IDE)
-        (for PyCharm hit 'Enter' to pass empty inputs to break out of the loop).
-        """
-        while True:
-            try:
-                self.table_name = input('Enter a table name: ')
-                self.col_type = input('Enter column names and data types: ')
-                self.new_table = f"""CREATE TABLE IF NOT EXISTS 
-                    {self.table_name} ({self.col_type});"""
-
-                self.cursor.execute(self.new_table)
-                db_logger.info('Table "%s" was created successfully.\n', self.table_name)
-            except KeyboardInterrupt:
-                raise StopIteration
-
-    def check_if_created(self):
-        """
-        Returns a list of tables in the connected database.
-        """
-        self.cursor.execute("""SELECT relname FROM pg_class 
-                               WHERE relkind='r' 
-                               AND relname !~ '^(pg_|sql_)';""")
-        db_logger.info('Tables in the database: %s\n', self.cursor.fetchall())
+            self.cursor.execute(self.historical_weather_data)
+            db_logger.info('Table {} was created successfully.\n'.format(self.table_name))
+        except Exception as e:
+            db_logger.info("An error occurred while creating a table: {}".format(e))
 
     def copy_to_table(self):
         """
@@ -138,32 +111,5 @@ class MyDatabase:
                 self.cursor.copy_expert(sql=self.load_csv, file=self.open_csv)
                 print('\n')
                 db_logger.info(f'Copied CSV data from file "{self.file_name}.csv" to table "{self.table_name}"\n')
-            except KeyboardInterrupt:
-                raise StopIteration
-
-    def my_custom_sql(self):
-        """
-        Allows to write a custom SQL statement to manipulate database
-        and data in a database.
-        The command will continue to ask for input
-        until it is interrupted by a KeyboardInterrupt (depends on IDE)
-        (for PyCharm hit 'Enter' to pass empty inputs to break out of the loop).
-        When data is returned it is returned in a tabular format.
-        """
-        while True:
-            try:
-                self.custom_sql = input('SQL statement: ')
-                self.cursor.execute(f'''{self.custom_sql};''')
-
-                if self.custom_sql.startswith('select'):
-                    self.col_names = [self.desc[0] for self.desc in self.cursor.description]
-                    self.rows = self.cursor.fetchall()
-                    self.headers = self.col_names
-                    self.table = self.rows
-
-                    db_logger.info('SQL statement executed: "%s"\n', self.custom_sql)
-                    db_logger.info('Table info: \n%s\n', tabulate(self.table, self.headers, tablefmt="github"))
-                else:
-                    db_logger.info('SQL statement executed: "%s"\n', self.custom_sql)
             except KeyboardInterrupt:
                 raise StopIteration

@@ -2,13 +2,18 @@ from Source.db_functions.db_functions import MyDatabase
 from Source.data_preparation import get_files_in_directory, create_dataframe
 import Source.logger as log
 
-main_logger = log.app_logger(__name__)
+main_logger = log.app_logger(__name__)  # <- Need to fix path to log issue!!!!!
 
 
 if __name__ == '__main__':
     with MyDatabase() as db:
 
         main_logger.info('Hello World')
+
+        try:
+            tables = db.create_tables()
+        except Exception as e:
+            main_logger.info('Exception occurred: {}'.format(e))
 
         try:
             cities = get_files_in_directory()

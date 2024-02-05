@@ -11,7 +11,6 @@ SECTION = 'turing-projects-2'   # change after completion of project
 
 
 def get_config(filename=FILENAME, section=SECTION):
-
     """
     Parses the connection parameters from credentials.ini file.
     Parsed parameters are used to create a connection to the database.

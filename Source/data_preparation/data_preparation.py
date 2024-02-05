@@ -10,7 +10,8 @@ def get_files_in_directory():
     Sets a path to JSON file.
     :returns a file name in a set path
     """
-    path_to_files = '../data/input'     # <---- NEED TO FIX THIS PATH ISSUE!!!!!!
+
+    path_to_files = '../data/input/'     # <---- NEED TO FIX THIS PATH ISSUE!!!!!!
     files_in_path = os.scandir(path_to_files)
 
     list_of_files = []
