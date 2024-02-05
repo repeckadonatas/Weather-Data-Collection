@@ -1,8 +1,9 @@
 import psycopg
-import Source.db_con_config as dbc
-import Source.logger as log
+from sqlalchemy import create_engine, URL
 from tabulate import tabulate
 
+import Source.db_con_config as dbc
+import Source.logger as log
 
 db_logger = log.app_logger(__name__)
 
@@ -21,13 +22,19 @@ class MyDatabase:
         """
         try:
             self.params = dbc.get_config()
+            # self.db_url = URL.create('postgresql+psycopg',    # <---- to connect using SQLAlchemy
+            #                          username=self.params['user'],
+            #                          password=self.params['password'],
+            #                          host=self.params['host'],
+            #                          port=self.params['port'],
+            #                          database=self.params['dbname'])
         except Exception as err:
             db_logger.error("A configuration error has occurred: %s", err)
 
     def __enter__(self):
         """
         Creates a connection to the database when main.py is run.
-        Requests for user and password.
+        Requests for username and password.
         :return: connection to a database and creation of cursor object
         """
 
@@ -36,6 +43,9 @@ class MyDatabase:
             # self.password = input('Enter password: ')
             # self.conn = psycopg.connect(**self.params, user=self.user, password=self.password)
             self.conn = psycopg.connect(**self.params)  # remove after project completion
+
+            # self.engine = create_engine(self.db_url)    # <---- to connect using SQLAlchemy
+
             self.conn.autocommit = True
             self.cursor = self.conn.cursor()
             db_logger.info("Connected to the database")

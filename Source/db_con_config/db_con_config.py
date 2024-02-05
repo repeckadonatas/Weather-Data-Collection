@@ -14,7 +14,7 @@ def get_config(filename=FILENAME, section=SECTION):
 
     """
     Parses the connection parameters from credentials.ini file.
-    Parsed parameters can be used to create a connection to the database.
+    Parsed parameters are used to create a connection to the database.
     """
 
     parser = SafeConfigParser()
