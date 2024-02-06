@@ -3,13 +3,14 @@
 *.iml
 out
 gen
-Source/logs/*.logs
+/logs/*.log
 Source/logs/*.log
 Source/logs/*.txt
 Source/logger/__pycache__
 Source/db_functions/__pycache__
 Source/db_con_config/__pycache__
 Source/data_preparation/__pycache__/
+Source/get_weather_data/__pycache__/
 Source/credentials/*
 Source/data/input/*.json
 Source/data_preparation/.ipynb_checkpoints
