@@ -47,6 +47,15 @@ if __name__ == '__main__':
             for city in cities:
                 city_df = data_preparation.create_dataframe(city)
                 main_logger.info('A dataframe was created for a file: {}'.format(city))
+
+                flatten_df = data_preparation.flatten_json_file(city_df, 'weather')
+                main_logger.info('Dataframe "{}" was flattened.'.format(city))
+
+                column_name_change = data_preparation.change_column_names(flatten_df)
+                main_logger.info('Dataframe "{}" columns were changed.'.format(city))
+
+                datetime_change = data_preparation.change_datetime_format(column_name_change)
+                main_logger.info('Dataframe "{}" date format was changed.'.format(city))
         except Exception as e:
             main_logger.info('Exception occurred: {}'.format(e))
 
