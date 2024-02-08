@@ -73,16 +73,27 @@ class MyDatabase:
         except (Exception, AttributeError) as err:
             db_logger.error("Connection was not closed: %s", err)
 
-    def create_tables(self):
+    def create_table(self):
         """
         Creates a table in a database if it does not exist.
         """
         try:
-            self.historical_weather_data = \
-                """CREATE TABLE IF NOT EXISTS historical_weather_data (id INT PRIMARY KEY, weather VARCHAR(100),
-                base VARCHAR, visibility INT, dt DATE, timezone INT, id INT);"""
+            self.table_name = \
+                """CREATE TABLE IF NOT EXISTS weather_data (
+                id INT GENERATED ALWAYS AS IDENTITY UNIQUE PRIMARY KEY, 
+                country_id INT, country VARCHAR(5), city VARCHAR(50), longitude FLOAT, latitude FLOAT,
+                main_temp FLOAT, main_feels_like FLOAT, main_temp_min FLOAT, main_temp_max FLOAT,
+                date DATE, timezone INT, sunrise DATE, sunset DATE, weather_id INT, weather_main VARCHAR(20),
+                weather_description VARCHAR(100), weather_icon VARCHAR(50), pressure INT, humidity INT, 
+                wind_speed FLOAT, wind_deg INT, clouds INT, visibility INT, base VARCHAR(20), sys_type INT, 
+                sys_id INT, cod INT);"""
 
-            self.cursor.execute(self.historical_weather_data)
-            db_logger.info('Table {} was created successfully.\n'.format(self.table_name))
+            self.cursor.execute(self.table_name)
+            db_logger.info('Table was created successfully.')
+
+            self.tables_in_db = self.cursor.execute("""SELECT relname FROM pg_class 
+                                                       WHERE relkind='r' 
+                                                       AND relname !~ '^(pg_|sql_)';""")
+            db_logger.info('Tables found in a database: {}'.format(self.cursor.fetchall()))
         except Exception as e:
             db_logger.info("An error occurred while creating a table: {}".format(e))

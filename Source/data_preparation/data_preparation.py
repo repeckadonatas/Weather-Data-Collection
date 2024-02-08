@@ -56,6 +56,7 @@ def change_column_names(dataframe: pd.DataFrame) -> pd.DataFrame:
     :return: dataframe with new column names
     """
     new_names = {"dt": "date",
+                 "name": "city",
                  "id": "country_id",
                  "coord.lon": "longitude",
                  "coord.lat": "latitude",
@@ -86,6 +87,21 @@ def change_datetime_format(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe['date'] = pd.to_datetime(dataframe['date'], unit='s', errors='coerce')
     dataframe['sunrise'] = pd.to_datetime(dataframe['sunrise'], unit='s', errors='coerce')
     dataframe['sunset'] = pd.to_datetime(dataframe['sunset'], unit='s', errors='coerce')
+    return dataframe
+
+
+def reorder_dataframe_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Reorders the columns of a dataframe.
+    :param dataframe: dataframe to reorder columns for
+    :return: dataframe with reordered columns
+    """
+    reordered_columns = ['country_id', 'country', 'city', 'longitude', 'latitude', 'main_temp', 'main_feels_like',
+                         'main_temp_min', 'main_temp_max', 'date', 'timezone', 'sunrise', 'sunset', 'weather_id',
+                         'weather_main', 'weather_description', 'weather_icon', 'pressure', 'humidity', 'wind_speed',
+                         'wind_deg', 'clouds', 'visibility', 'base', 'sys_type', 'sys_id', 'cod']
+
+    dataframe = dataframe[reordered_columns]
     return dataframe
 
 
