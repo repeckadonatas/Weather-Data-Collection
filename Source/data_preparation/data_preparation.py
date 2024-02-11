@@ -1,7 +1,6 @@
 import os
 import json
 import pandas as pd
-import numpy as np
 from pathlib import Path
 
 
@@ -18,7 +17,7 @@ def get_files_in_directory():
     for file in files_in_path:
         if file.is_dir() or file.is_file():
             list_of_files.append(file.name)
-            return list_of_files  # <----- don't forget to align this statement back with for!!!!!
+    return list_of_files  # <----- don't forget to align this statement back with for!!!!!
 
 
 def create_dataframe(file_json):
@@ -35,17 +34,18 @@ def create_dataframe(file_json):
     return df
 
 
-def flatten_json_file(dataframe: pd.DataFrame, row: str) -> pd.DataFrame:
+def flatten_json_file(dataframe: pd.DataFrame, col: str) -> pd.DataFrame:
     """
     Flattens the supplied dataframe and returns a new dataframe with flattened json data.
+    :param col: a name of the column to be flattened
     :param dataframe: dataframe to flatten
     :return: new dataframe with flattened json data
     """
-    dataframe_flat = dataframe[row].apply(pd.Series)
+    dataframe_flat = dataframe[col].apply(pd.Series)
     dataframe_flat_0 = dataframe_flat[0].apply(pd.Series)
     dataframe_flat_0.columns = ['weather_id', 'weather_main', 'weather_description', 'weather_icon']
     dataframe_new = pd.concat([dataframe, dataframe_flat_0], axis=1)
-    dataframe_new = dataframe_new.drop(columns=['weather'], axis=1)
+    dataframe_new = dataframe_new.drop(columns=[col], axis=1)
     return dataframe_new
 
 
@@ -103,13 +103,3 @@ def reorder_dataframe_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
 
     dataframe = dataframe[reordered_columns]
     return dataframe
-
-
-def load_to_database(dataframe: pd.DataFrame, table_name: str, engine) -> None:
-    """
-    Function to load the data of a dataframe to a specified table in the database.
-    :param dataframe: dataframe to load data from.
-    :param table_name: table to load the data to.
-    :return: None
-    """
-    dataframe.to_sql(table_name, engine, if_exists='append')
