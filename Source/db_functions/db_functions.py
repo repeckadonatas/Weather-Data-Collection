@@ -3,7 +3,7 @@ import pandas as pd
 import Source.db_con_config as dbc
 import Source.logger as log
 
-from sqlalchemy import URL, create_engine, text
+from sqlalchemy import URL, create_engine, text, MetaData, Table, Column, Integer, String, Float, DateTime, VARCHAR
 
 db_logger = log.app_logger(__name__)
 
@@ -78,6 +78,40 @@ class MyDatabase:
         Returns a list of tables in a database.
         """
         try:
+            self.metadata = MetaData()
+            self.weather_data_table = Table(
+                'weather_data',
+                self.metadata,
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country', VARCHAR(5)),
+                Column('city', VARCHAR(50)),
+                Column('longitude', Float),
+                Column('latitude', Float),
+                Column('main_temp', Float),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+                Column('country_id', Integer),
+            )
+
+            self.metadata.create_all(self.engine)
+
             self.table_name = ("""CREATE TABLE IF NOT EXISTS weather_data (
                 id INT GENERATED ALWAYS AS IDENTITY UNIQUE,
                 country_id INT, country VARCHAR(5), city VARCHAR(50), longitude FLOAT, latitude FLOAT,
