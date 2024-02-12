@@ -1,1 +1,1 @@
-from Source.get_weather_data.get_weather_data import get_weather_data
+from Source.get_weather_data.get_weather_data import *

@@ -1,4 +1,5 @@
 import pandas as pd
+import sqlalchemy
 
 import Source.db_con_config as dbc
 import Source.logger as log
@@ -52,7 +53,6 @@ class MyDatabase:
             db_logger.info("Connected to the database")
         except (Exception, AttributeError) as err:
             db_logger.error("The following connection error has occurred: %s", err)
-
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -78,51 +78,19 @@ class MyDatabase:
         Returns a list of tables in a database.
         """
         try:
-            self.metadata = MetaData()
-            self.weather_data_table = Table(
-                'weather_data',
-                self.metadata,
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country', VARCHAR(5)),
-                Column('city', VARCHAR(50)),
-                Column('longitude', Float),
-                Column('latitude', Float),
-                Column('main_temp', Float),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-                Column('country_id', Integer),
-            )
-
-            self.metadata.create_all(self.engine)
-
-            self.table_name = ("""CREATE TABLE IF NOT EXISTS weather_data (
-                id INT GENERATED ALWAYS AS IDENTITY UNIQUE,
-                country_id INT, country VARCHAR(5), city VARCHAR(50), longitude FLOAT, latitude FLOAT,
-                main_temp FLOAT, main_feels_like FLOAT, main_temp_min FLOAT, main_temp_max FLOAT,
-                date DATE, timezone INT, sunrise DATE, sunset DATE, weather_id INT, weather_main VARCHAR(20),
-                weather_description VARCHAR(100), weather_icon VARCHAR(50), pressure INT, humidity INT, 
-                wind_speed FLOAT, wind_deg INT, clouds INT, visibility INT, base VARCHAR(20), sys_type INT, 
-                sys_id INT, cod INT);""")
-
-            self.conn.execute(text(self.table_name))
-            db_logger.info('Table was created successfully.')
+            if self.engine.dialect.has_table(self.conn, 'weather_data'):
+                db_logger.info('Table already exists.')
+            else:
+                self.weather_data = """CREATE TABLE IF NOT EXISTS weather_data (
+                    id INT GENERATED ALWAYS AS IDENTITY UNIQUE,
+                    country_id INT, country VARCHAR(5), city VARCHAR(50), longitude FLOAT, latitude FLOAT,
+                    main_temp FLOAT, main_feels_like FLOAT, main_temp_min FLOAT, main_temp_max FLOAT,
+                    date DATE, timezone INT, sunrise DATE, sunset DATE, weather_id INT, weather_main VARCHAR(20),
+                    weather_description VARCHAR(100), weather_icon VARCHAR(50), pressure INT, humidity INT,
+                    wind_speed FLOAT, wind_deg INT, clouds INT, visibility INT, base VARCHAR(20), sys_type INT,
+                    sys_id INT, cod INT);"""
+                self.conn.execute(text(self.weather_data))
+                db_logger.info('Table was created successfully.')
 
             self.tables_in_db = self.conn.execute(text("""SELECT relname FROM pg_class 
                                                        WHERE relkind='r' 

@@ -31,6 +31,7 @@ def create_dataframe(file_json):
         json_data = json.load(jfile)
         df = pd.DataFrame(pd.json_normalize(json_data))
         pd.set_option('display.max_columns', None)
+
     return df
 
 

@@ -1,3 +1,5 @@
 Istanbul, Turkey: [41.01384, 28.94966],
 London, United Kingdom: [51.50853, -0.12574],
-Saint Petersburg, Russia: [59.93863, 30.31413]
+Saint Petersburg, Russia: [59.93863, 30.31413],
+Berlin, Germany: [52.52437, 13.41053],
+Madrid, Spain: [40.4165, -3.70256]

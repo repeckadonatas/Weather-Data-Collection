@@ -56,3 +56,6 @@ Because no data is perfect, data cleaning and normalization was performed while 
 
 
 ## Future Improvements 
+
+* Avoid using raw SQL statements as it makes database prone to SQL injection attacks;
+* 

@@ -17,7 +17,6 @@ def get_weather_data(locations: dict,
     :param exclude_weather_data: weather data to exclude from API response
     """
     path_to_data_storage = Path(__file__).cwd() / 'Source/data/input/'
-
     for city in locations:
         coordinates = locations[city]
         lat = coordinates[0]
@@ -38,4 +37,4 @@ def get_weather_data(locations: dict,
         else:
             with open(path_to_data_storage / (city + '_response.json'), 'w', encoding='utf-8') as f:
                 json.dump(json_response, f, ensure_ascii=False, indent=4)
-                api_logger.info(f'Request successfully made for {city}.')
+                api_logger.info('Downloading weather API data for city {}...'.format(city))
