@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+#-*- coding: utf-8 -*-
+
 import configparser
 from configparser import SafeConfigParser
 import Source.logger as log

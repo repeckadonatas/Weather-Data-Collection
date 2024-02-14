@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+#-*- coding: utf-8 -*-
+
 from Source.db_functions.db_functions import MyDatabase
 import Source.data_preparation as dprep
 import Source.get_weather_data as api_data
@@ -7,27 +10,29 @@ import concurrent.futures
 import threading
 import time
 from queue import Queue
+from pathlib import Path
 
 main_logger = log.app_logger(__name__)
+
 
 # Downloading data from weather API
 def download_data():
     try:
         locations = {}
-        with open('Source/locations/locations.txt', 'r', encoding='utf-8') as file:
+        with open(Path(__file__).cwd() / 'Source/locations/locations.txt', 'r', encoding='utf-8') as file:
             for line in file:
                 city, coords_str = line.strip().rstrip(',').split(': ')
                 coords = [float(coord) for coord in coords_str.strip('[]').split(',')]
                 locations[city] = coords
 
-        with open('Source/credentials/api_key.txt', 'r', encoding='utf-8') as key:
+        with open(Path(__file__).cwd() / 'Source/credentials/api_key.txt', 'r', encoding='utf-8') as key:
             api_key = key.readline()
 
         exclude_weather_data = 'minutely, hourly, daily, alerts'
 
         get_data = api_data.get_weather_data(locations, api_key, exclude_weather_data)
     except Exception as e:
-        main_logger.info('Exception occurred: {}'.format(e))
+        main_logger.info('Exception occurred while downloading data: {}'.format(e))
 
 
 # Data preparation
@@ -56,7 +61,7 @@ def processing_data(queue, event):
                 queue.put(column_reorder)
 
         except Exception as e:
-            main_logger.info('Exception occurred: {}'.format(e))
+            main_logger.info('Exception occurred while processing data: {}'.format(e))
 
 
 def upload_to_db(queue, event):
@@ -82,7 +87,7 @@ def upload_to_db(queue, event):
                 main_logger.info('Data copied from a queue for a city: {}'.format({'city': dataframe['city'],
                                                                                    'country': dataframe['country']}))
         except Exception as e:
-            main_logger.info('Exception occurred: {}'.format(e))
+            main_logger.info('Exception occurred while loading data: {}'.format(e))
 
 
 if __name__ == '__main__':
@@ -91,17 +96,17 @@ if __name__ == '__main__':
 
     try:
         dataframe_queue = Queue(maxsize=20)
-        event = threading.Event()
+        this_event = threading.Event()
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             download_data = executor.submit(download_data)  # <- Producer
             time.sleep(5.5)
-            processing_data = executor.submit(processing_data, dataframe_queue, event)  # <- Consumer/Producer
+            processing_data = executor.submit(processing_data, dataframe_queue, this_event)  # <- Consumer/Producer
             time.sleep(0.5)
-            upload_to_db = executor.submit(upload_to_db, dataframe_queue, event)  # <- Consumer
+            upload_to_db = executor.submit(upload_to_db, dataframe_queue, this_event)  # <- Consumer
 
             time.sleep(0.02)
-            event.set()
-            concurrent.futures.wait([download_data, processing_data, upload_to_db])
-            event.wait()
+            this_event.set()
+            concurrent.futures.as_completed([download_data, processing_data])
+            this_event.wait()
     except Exception as e:
-        main_logger.info('Exception within concurrency: {}'.format(e))
+        main_logger.info('Threading exception occurred: {}'.format(e))
