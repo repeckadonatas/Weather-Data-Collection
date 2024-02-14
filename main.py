@@ -31,6 +31,7 @@ def download_data():
         exclude_weather_data = 'minutely, hourly, daily, alerts'
 
         get_data = api_data.get_weather_data(locations, api_key, exclude_weather_data)
+
     except Exception as e:
         main_logger.info('Exception occurred while downloading data: {}'.format(e))
 
@@ -60,6 +61,7 @@ def processing_data(queue, event):
 
                 queue.put(column_reorder)
 
+            event.set()
         except Exception as e:
             main_logger.info('Exception occurred while processing data: {}'.format(e))
 
@@ -99,14 +101,21 @@ if __name__ == '__main__':
         this_event = threading.Event()
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             download_data = executor.submit(download_data)  # <- Producer
-            time.sleep(5.5)
+            time.sleep(6)
+
             processing_data = executor.submit(processing_data, dataframe_queue, this_event)  # <- Consumer/Producer
             time.sleep(0.5)
-            upload_to_db = executor.submit(upload_to_db, dataframe_queue, this_event)  # <- Consumer
 
-            time.sleep(0.02)
-            this_event.set()
-            concurrent.futures.as_completed([download_data, processing_data])
-            this_event.wait()
+            for _ in concurrent.futures.as_completed([download_data, processing_data]):
+                upload_to_db = executor.submit(upload_to_db, dataframe_queue, this_event)  # <- Consumer
+
+                this_event.set()  # Signal the event to start processing and uploading
+                concurrent.futures.wait([download_data, processing_data, upload_to_db])
+                time.sleep(0.02)  # Allow some processing time for the data to be ready
+                this_event.wait()  # Wait for the download script to finish
+
+                # concurrent.futures.wait(
+                #     [download_data, processing_data, upload_to_db])  # Wait for all threads to finish
+
     except Exception as e:
         main_logger.info('Threading exception occurred: {}'.format(e))
