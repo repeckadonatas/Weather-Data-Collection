@@ -14,7 +14,8 @@ def get_weather_data(locations: dict,
                      exclude_weather_data: str):
     """
     Get weather data for a given coordinates of a city.
-    A JSON file is created containing weather data for every city of a dictionary.
+    A JSON file is created containing weather data for every city as
+    it's coordinates are being provided.
     :param locations: a dictionary with 'lat' and 'lon' values of a city
     :param api_key: API key for weather API service used
     :param exclude_weather_data: weather data to exclude from API response
@@ -40,4 +41,4 @@ def get_weather_data(locations: dict,
         else:
             with open(path_to_data_storage / (city + '_response.json'), 'w', encoding='utf-8') as f:
                 json.dump(json_response, f, ensure_ascii=False, indent=4)
-                api_logger.info('Downloading weather API data for city {}...'.format(city))
+                api_logger.info('Downloading weather API data for a city {}...'.format(city))

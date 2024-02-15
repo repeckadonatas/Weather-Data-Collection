@@ -2,12 +2,9 @@
 #-*- coding: utf-8 -*-
 
 import pandas as pd
-import sqlalchemy
-
 import Source.db_con_config as dbc
 import Source.logger as log
-
-from sqlalchemy import URL, create_engine, text, MetaData, Table, Column, Integer, String, Float, DateTime, VARCHAR
+from sqlalchemy import URL, create_engine, text
 
 db_logger = log.app_logger(__name__)
 
@@ -27,7 +24,7 @@ class MyDatabase:
         """
         try:
             self.params = dbc.get_config()
-            self.db_url = URL.create('postgresql+psycopg',    # <---- to connect using SQLAlchemy
+            self.db_url = URL.create('postgresql+psycopg',
                                      username=self.params['user'],
                                      password=self.params['password'],
                                      host=self.params['host'],
@@ -39,18 +36,11 @@ class MyDatabase:
     def __enter__(self):
         """
         Creates a connection to the database when main.py is run.
-        Creates a connection engine, cursor and sets autocommit flag to True.
-        Requests for username and password.
-        :return: connection to a database and cursor object
+        Creates a connection engine and sets autocommit flag to True.
+        :return: connection to a database
         """
-
         try:
-            # self.user = input('Enter username: ')
-            # self.password = input('Enter password: ')
-            # self.conn = psycopg.connect(**self.params, user=self.user, password=self.password)
-            # self.conn = psycopg.connect(**self.params)  # remove after project completion
-
-            self.engine = create_engine(self.db_url)    # <---- to connect using SQLAlchemy
+            self.engine = create_engine(self.db_url)
             self.conn = self.engine.connect().execution_options(autocommit=True)
 
             db_logger.info("Connected to the database")
@@ -60,18 +50,19 @@ class MyDatabase:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
-        Closes the connection to the database once the program has run.
+        Closes the connection to the database once the program has finished.
         :param exc_type: exception type
         :param exc_val: exception value
         :param exc_tb: exception traceback
         """
-
         try:
             if self.conn is not None:
                 self.conn.close()
-                db_logger.info('Connection closed')
+
+                db_logger.info('Connection closed.\n')
             elif exc_val:
                 raise
+
         except (Exception, AttributeError) as err:
             db_logger.error("Connection was not closed: %s", err)
 
@@ -92,12 +83,14 @@ class MyDatabase:
                     weather_description VARCHAR(100), weather_icon VARCHAR(50), pressure INT, humidity INT,
                     wind_speed FLOAT, wind_deg INT, clouds INT, visibility INT, base VARCHAR(20), sys_type INT,
                     sys_id INT, cod INT);"""
+
                 self.conn.execute(text(self.weather_data))
                 db_logger.info('Table was created successfully.')
 
             self.tables_in_db = self.conn.execute(text("""SELECT relname FROM pg_class 
                                                        WHERE relkind='r' 
                                                        AND relname !~ '^(pg_|sql_)';""")).fetchall()
+
             db_logger.info('Table(s) found in a database: {}'.format(self.tables_in_db))
             self.conn.rollback()
         except Exception as e:
@@ -109,7 +102,6 @@ class MyDatabase:
         Function to load the data of a dataframe to a specified table in the database.
         :param dataframe: dataframe to load data from.
         :param table_name: table to load the data to.
-        :return: None
         """
         try:
             dataframe.to_sql(table_name, con=self.engine, if_exists='append', index=False)

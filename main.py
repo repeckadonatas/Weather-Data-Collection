@@ -15,8 +15,13 @@ from pathlib import Path
 main_logger = log.app_logger(__name__)
 
 
-# Downloading data from weather API
 def download_data():
+    """
+    Downloading data from weather API.
+    Parsing city coordinates from a list of cities.
+    Taking API key from a separate file.
+    Excluding API weather data that is not needed.
+    """
     try:
         locations = {}
         with open(Path(__file__).cwd() / 'Source/locations/locations.txt', 'r', encoding='utf-8') as file:
@@ -36,8 +41,13 @@ def download_data():
         main_logger.info('Exception occurred while downloading data: {}'.format(e))
 
 
-# Data preparation
 def processing_data(queue, event):
+    """
+    Data preparation.
+    Opening a dataframe, processing it and adding it to the queue.
+    :param queue: a Queue object that contains processed data
+    :param event: Event object that creates a thread to run this function.
+    """
     while not event.is_set():
         try:
             cities = dprep.get_files_in_directory()
@@ -67,21 +77,20 @@ def processing_data(queue, event):
 
 
 def upload_to_db(queue, event):
-
-    # Establishing database connection.
-
+    """
+    Establishing database connection.
+    Calls a function to create tables if they do not exist in the database.
+    Loading data to the database.
+    :param queue: a Queue object that contains processed data
+    :param event: Event object that creates a thread to run this function.
+    """
     with MyDatabase() as db:
-
-        # Creating tables if they do not exist in the database.
-
         try:
             table = db.create_table()
         except Exception as e:
             main_logger.info('Exception occurred while creating a table: {}'.format(e))
 
         try:
-            # Loading data to the database
-
             while not event.is_set() or not queue.empty():
                 dataframe = queue.get()
                 load_data = db.load_to_database(dataframe,
@@ -101,21 +110,22 @@ if __name__ == '__main__':
         this_event = threading.Event()
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             download_data = executor.submit(download_data)  # <- Producer
-            time.sleep(6)
+            time.sleep(10)
 
-            processing_data = executor.submit(processing_data, dataframe_queue, this_event)  # <- Consumer/Producer
-            time.sleep(0.5)
+            for _ in concurrent.futures.as_completed([download_data]):
+                processing_data = executor.submit(processing_data, dataframe_queue, this_event)  # <- Consumer/Producer
+                time.sleep(0.5)
 
-            for _ in concurrent.futures.as_completed([download_data, processing_data]):
+                concurrent.futures.wait([processing_data])
+
                 upload_to_db = executor.submit(upload_to_db, dataframe_queue, this_event)  # <- Consumer
 
                 this_event.set()  # Signal the event to start processing and uploading
-                concurrent.futures.wait([download_data, processing_data, upload_to_db])
+
                 time.sleep(0.02)  # Allow some processing time for the data to be ready
                 this_event.wait()  # Wait for the download script to finish
 
-                # concurrent.futures.wait(
-                #     [download_data, processing_data, upload_to_db])  # Wait for all threads to finish
-
+            main_logger.info('Data ready to be uploaded.\n')
+        main_logger.info('Data uploaded successfully.\n')
     except Exception as e:
         main_logger.info('Threading exception occurred: {}'.format(e))

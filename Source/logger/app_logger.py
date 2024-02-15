@@ -28,7 +28,7 @@ def get_console_handler():
 
 def get_file_handler():
     """
-    Creates a file handler object that stores logs outputs.
+    Creates a file handler object that stores log outputs.
     :return: returns .logs file
     """
     file_handler = RotatingFileHandler(log_file)

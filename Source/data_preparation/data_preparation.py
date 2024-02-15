@@ -3,16 +3,18 @@
 
 import os
 import json
+import pytz
 import pandas as pd
 from pathlib import Path
 
 
 def get_files_in_directory():
     """
-    Sets a path to JSON file.
-    :return a file name in a set path
+    Reads JSON files in a set directory.
+    Returns a list of names of files in the directory
+    to be iterated through.
+    :return a list of file names in the directory
     """
-
     path_to_files = Path(__file__).cwd() / 'Source/data/input/'
     files_in_path = os.scandir(path_to_files)
 
@@ -20,27 +22,25 @@ def get_files_in_directory():
     for file in files_in_path:
         if file.is_dir() or file.is_file():
             list_of_files.append(file.name)
-    return list_of_files  # <----- don't forget to align this statement back with for!!!!!
+    return list_of_files
 
 
 def create_dataframe(file_json):
     """
-    Creates a pandas dataframe from JSON file.
-    Sets the maximum available columns to be shown.
-    Requires name of the file.
+    Creates a pandas dataframe from a JSON file.
+    Requires a name of the file.
     """
     path_to_files = Path(__file__).cwd() / 'Source/data/input/'
     with open(path_to_files / file_json) as jfile:
         json_data = json.load(jfile)
         df = pd.DataFrame(pd.json_normalize(json_data))
-        pd.set_option('display.max_columns', None)
 
     return df
 
 
 def flatten_json_file(dataframe: pd.DataFrame, col: str) -> pd.DataFrame:
     """
-    Flattens the supplied dataframe and returns a new dataframe with flattened json data.
+    Flattens the supplied dataframe and returns a new dataframe.
     :param col: a name of the column to be flattened
     :param dataframe: dataframe to flatten
     :return: new dataframe with flattened json data
@@ -84,13 +84,17 @@ def change_column_names(dataframe: pd.DataFrame) -> pd.DataFrame:
 
 def change_datetime_format(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Change datetime format of a given dataframe to ISO 8601 format
+    Change datetime format of a given dataframe to ISO 8601 format.
+    Datetime returned is adjusted for 'Europe/Vilnius' time zone.
     :param dataframe: dataframe to change datetime format for.
-    :return: dataframe with changed datetime format
+    :return: dataframe with changed datetime format.
     """
-    dataframe['date'] = pd.to_datetime(dataframe['date'], unit='s', errors='coerce')
-    dataframe['sunrise'] = pd.to_datetime(dataframe['sunrise'], unit='s', errors='coerce')
-    dataframe['sunset'] = pd.to_datetime(dataframe['sunset'], unit='s', errors='coerce')
+    date_cols = ['date', 'sunrise', 'sunset']
+    local_timezone = pytz.timezone('Europe/Vilnius')
+
+    for i in date_cols:
+        dataframe[i] = (pd.to_datetime(dataframe[i], unit='s', errors='coerce', utc=True)
+                        .dt.tz_convert(local_timezone))
     return dataframe
 
 

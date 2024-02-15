@@ -6,11 +6,10 @@ from configparser import SafeConfigParser
 import Source.logger as log
 
 
-# sqlalchemy engine connection should be set up here in order to use sqlalchemy with postgresql
 parser_logger = log.app_logger(__name__)
 
 FILENAME = 'Source/credentials/credentials.ini'
-SECTION = 'turing-projects-2'   # change after completion of project
+SECTION = 'turing-projects-2'
 
 
 def get_config(filename=FILENAME, section=SECTION):

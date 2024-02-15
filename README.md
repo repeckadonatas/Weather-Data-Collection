@@ -16,19 +16,11 @@
 
 ## How To Use The Program (FIX!)
 
-To use the program, run the _`main.py`_ file. You will then be greeted with a welcome message. The program uses some pre-set functions for simple ad hoc operations within the database. It also allows for custom SQL queries to be written (proper usage and specific SQL functionality must comply with SQL and PostgreSQL).
+To use the program, run the _`main.py`_ file. Once started, the API data download will begin, followed by data preparation and then data upload to a table on a database.
 
-To interact with the program use the built-in commands:
-*     To test a connection with a database: test
-*     To create a table: create
-*     To get the list of tables in a database: check
-*     To copy data from a CSV file to a specified table: copy
-*     To write a custom SQL statement: sql
-*     To get a movie or a tv show recommendation based on a genre: rec
-*     To quit the program: exit
+The program runs automatically on a set schedule (once per hour every day). The schedule is set using cron. Alternatively, a schedule is also set using Windows Task Scheduler.
 
-To see the commands at any time, pass an empty of wrong keyword and then type _**help**_ in the terminal window.
-
+Currently, the program retrieves data of the 20 largest cities in Europe. If the need arises to get the data for more cities, a name, country and the coordinates of a city must be placed in a text file in `Source/locations/locations.txt` in the same format as other cites (especially the coordinates).
 
 **Note:** 
 - To restart the program, run _`main.py`_ again.
