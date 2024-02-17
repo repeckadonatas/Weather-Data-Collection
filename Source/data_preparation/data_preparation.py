@@ -59,7 +59,7 @@ def change_column_names(dataframe: pd.DataFrame) -> pd.DataFrame:
     :param dataframe: a pandas dataframe to change column names
     :return: dataframe with new column names
     """
-    new_names = {"dt": "date",
+    new_names = {"dt": "date_local",
                  "name": "city",
                  "id": "country_id",
                  "coord.lon": "longitude",
@@ -76,8 +76,8 @@ def change_column_names(dataframe: pd.DataFrame) -> pd.DataFrame:
                  "sys.type": "sys_type",
                  "sys.id": "sys_id",
                  "sys.country": "country",
-                 "sys.sunrise": "sunrise",
-                 "sys.sunset": "sunset"}
+                 "sys.sunrise": "sunrise_local",
+                 "sys.sunset": "sunset_local"}
     dataframe.rename(columns=new_names, inplace=True)
     return dataframe
 
@@ -89,12 +89,15 @@ def change_datetime_format(dataframe: pd.DataFrame) -> pd.DataFrame:
     :param dataframe: dataframe to change datetime format for.
     :return: dataframe with changed datetime format.
     """
-    date_cols = ['date', 'sunrise', 'sunset']
+    date_cols = ['date_local', 'sunrise_local', 'sunset_local']
     local_timezone = pytz.timezone('Europe/Vilnius')
+    dataframe['date_vilnius'] = (pd.to_datetime(dataframe['date_local'], unit='s', errors='coerce', utc=True)
+                                 .dt.tz_convert(local_timezone))
 
     for i in date_cols:
-        dataframe[i] = (pd.to_datetime(dataframe[i], unit='s', errors='coerce', utc=True)
-                        .dt.tz_convert(local_timezone))
+        dataframe[i] = dataframe[i] + dataframe['timezone']
+        dataframe[i] = pd.to_datetime(dataframe[i], unit='s', errors='coerce')
+
     return dataframe
 
 
@@ -104,10 +107,11 @@ def reorder_dataframe_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
     :param dataframe: dataframe to reorder columns for
     :return: dataframe with reordered columns
     """
-    reordered_columns = ['country_id', 'country', 'city', 'longitude', 'latitude', 'main_temp', 'main_feels_like',
-                         'main_temp_min', 'main_temp_max', 'date', 'timezone', 'sunrise', 'sunset', 'weather_id',
-                         'weather_main', 'weather_description', 'weather_icon', 'pressure', 'humidity', 'wind_speed',
-                         'wind_deg', 'clouds', 'visibility', 'base', 'sys_type', 'sys_id', 'cod']
+    reordered_columns = ['longitude', 'latitude', 'country_id', 'country', 'city', 'main_temp', 'main_feels_like',
+                         'main_temp_min', 'main_temp_max', 'date_vilnius', 'date_local', 'timezone', 'sunrise_local',
+                         'sunset_local', 'weather_id', 'weather_main', 'weather_description', 'weather_icon',
+                         'pressure', 'humidity', 'wind_speed', 'wind_deg', 'clouds', 'visibility', 'base',
+                         'sys_type', 'sys_id', 'cod']
 
-    dataframe = dataframe[reordered_columns]
+    dataframe = dataframe.reindex(columns=reordered_columns)
     return dataframe

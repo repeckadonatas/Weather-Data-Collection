@@ -126,6 +126,7 @@ if __name__ == '__main__':
                 this_event.wait()  # Wait for the download script to finish
 
             main_logger.info('Data ready to be uploaded.\n')
-        main_logger.info('Data uploaded successfully.\n')
     except Exception as e:
         main_logger.info('Threading exception occurred: {}'.format(e))
+
+    main_logger.info('Data uploaded successfully.\n')

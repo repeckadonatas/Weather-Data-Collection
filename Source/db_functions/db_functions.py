@@ -59,7 +59,7 @@ class MyDatabase:
             if self.conn is not None:
                 self.conn.close()
 
-                db_logger.info('Connection closed.\n')
+                db_logger.info('Connection closed.')
             elif exc_val:
                 raise
 
@@ -77,12 +77,13 @@ class MyDatabase:
             else:
                 self.weather_data = """CREATE TABLE IF NOT EXISTS weather_data (
                     id INT GENERATED ALWAYS AS IDENTITY UNIQUE,
-                    country_id INT, country VARCHAR(5), city VARCHAR(50), longitude FLOAT, latitude FLOAT,
-                    main_temp FLOAT, main_feels_like FLOAT, main_temp_min FLOAT, main_temp_max FLOAT,
-                    date DATE, timezone INT, sunrise DATE, sunset DATE, weather_id INT, weather_main VARCHAR(20),
-                    weather_description VARCHAR(100), weather_icon VARCHAR(50), pressure INT, humidity INT,
-                    wind_speed FLOAT, wind_deg INT, clouds INT, visibility INT, base VARCHAR(20), sys_type INT,
-                    sys_id INT, cod INT);"""
+                    longitude FLOAT, latitude FLOAT, country_id INT, country VARCHAR(5), city VARCHAR(50),
+                    main_temp FLOAT, main_feels_like FLOAT, main_temp_min FLOAT, main_temp_max FLOAT, 
+                    date_vilnius TIMESTAMP WITHOUT TIME ZONE, date_local TIMESTAMP, timezone INT, 
+                    sunrise_local TIMESTAMP, sunset_local TIMESTAMP, weather_id INT, weather_main VARCHAR(20), 
+                    weather_description VARCHAR(100), weather_icon VARCHAR(50), pressure INT, humidity INT, 
+                    wind_speed FLOAT, wind_deg INT, clouds INT, visibility INT, base VARCHAR(20), 
+                    sys_type INT, sys_id INT, cod INT);"""
 
                 self.conn.execute(text(self.weather_data))
                 db_logger.info('Table was created successfully.')
