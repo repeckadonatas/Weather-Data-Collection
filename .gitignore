@@ -14,4 +14,6 @@ Source/get_weather_data/__pycache__/
 Source/credentials/*
 Source/data/input/*.json
 Source/data_preparation/.ipynb_checkpoints
-misc
+misc/context-managar-tests.txt
+misc/SQL.sql
+misc/weather-data-table-design.xlsx

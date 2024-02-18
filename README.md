@@ -45,6 +45,8 @@ Store the `credentials.ini` file in `Source/credentials/` folder to connect to t
 
 For API connection, API key is needed. It should be stored in `api_key.txt` file in `Source/credentials/` folder.
 
+The SQL queries to run analytical queries against weather data in a database are stored in `misc` folder. SQL uses PostgreSQL dialect. 
+
 
 ## Input Dataset Preparation
 
