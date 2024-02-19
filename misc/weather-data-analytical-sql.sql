@@ -502,3 +502,29 @@ group by case city
 order by temp_min_max_weekly, start_of_week_day;
 
 
+
+-- creating a view to count the number of times (hours) it rained in the last day
+create or replace view rainy_hours_last_day
+    as
+select count(*) as rainy_hours_last_day
+from weather_data
+where weather_main like '%Drizzle'
+or
+    weather_main like '%Rain'
+and
+    date_local >= current_date - 1
+and date_local <= current_date;
+
+
+
+-- creating a view to count the number of times (hours) it rained in the last week
+create or replace view rainy_hours_last_week
+    as
+select count(*) as rainy_hours_last_week
+from weather_data
+where weather_main like '%Drizzle'
+or
+    weather_main like '%Rain'
+and
+    date_local >= date_trunc('week', current_date) - interval '7 days'
+and date_local <= current_date;
