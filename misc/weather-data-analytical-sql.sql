@@ -1,6 +1,6 @@
 
 -- Creating today's temperature view
-create or replace view temperature_view_today
+create or replace temporary view temperature_view_today
     as
 select country,
        case city
@@ -41,9 +41,12 @@ group by country,
     end
 order by country, city;
 
+select * from temperature_view_today;
+
+
 
 -- Creating yesterday's temperature view
-create or replace view temperature_view_yesterday
+create or replace temporary view temperature_view_yesterday
     as
 select country,
        case city
@@ -83,9 +86,12 @@ group by country,
     end
 order by country, city;
 
+select * from temperature_view_yesterday;
+
+
 
 -- Creating temperature view for current week
-create or replace view temperature_view_this_week
+create or replace temporary view temperature_view_this_week
     as
 select country,
        case city
@@ -125,9 +131,13 @@ group by country,
     end
 order by country, city;
 
+select * from temperature_view_this_week;
+
+
+
 
 -- Creating temperature view for the last 7 days
-create or replace view temperature_view_last_7_days
+create or replace temporary view temperature_view_last_7_days
     as
 select country,
        case city
@@ -167,9 +177,13 @@ group by country,
     end
 order by country, city;
 
+select * from temperature_view_last_7_days;
+
+
+
 
 -- creating a view for cities with the highest or lowest temperature for each hour
-create or replace view cities_min_max_temp_hourly
+create or replace temporary view cities_min_max_temp_hourly
     as
 with ranked_temperatures as (
   select
@@ -212,7 +226,7 @@ select
        end,
   max(main_temp) as temp_min_max_hourly,
   current_date as date,
-  extract(hour from date_local) as Hour
+  extract(hour from date_local) as hour
 from
   ranked_temperatures
 where
@@ -278,9 +292,13 @@ group by case city
     main_temp, date_local
 order by temp_min_max_hourly, hour;
 
+select * from cities_min_max_temp_hourly;
+
+
+
 
 -- creating a view for cities with the highest or lowest temperature for each day
-create or replace view cities_min_max_temp_daily
+create or replace temporary view cities_min_max_temp_daily
     as
 with ranked_temperatures as (
   select
@@ -389,10 +407,13 @@ group by case city
     main_temp, date_local
 order by temp_min_max_daily, day;
 
+select * from cities_min_max_temp_daily;
+
+
 
 
 -- creating a view for cities with the highest or lowest temperature for each week
-create or replace view cities_min_max_temp_weekly
+create or replace temporary view cities_min_max_temp_weekly
     as
 with ranked_temperatures as (
   select
@@ -483,7 +504,7 @@ from
 where
   rank_lowest = 1
 and
-    date_local >= date_trunc('week', current_date)
+    date_local >= date_trunc('week', current_date::date)
 group by case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
@@ -501,10 +522,13 @@ group by case city
     main_temp, date_local
 order by temp_min_max_weekly, start_of_week_day;
 
+select * from cities_min_max_temp_weekly;
+
+
 
 
 -- creating a view to count the number of times (hours) it rained in the last day
-create or replace view rainy_hours_last_day
+create or replace temporary view rainy_hours_last_day
     as
 select count(*) as rainy_hours_last_day
 from weather_data
@@ -515,10 +539,13 @@ and
     date_local >= current_date - 1
 and date_local <= current_date;
 
+select * from rainy_hours_last_day;
+
+
 
 
 -- creating a view to count the number of times (hours) it rained in the last week
-create or replace view rainy_hours_last_week
+create or replace temporary view rainy_hours_last_week
     as
 select count(*) as rainy_hours_last_week
 from weather_data
@@ -528,3 +555,5 @@ or
 and
     date_local >= date_trunc('week', current_date) - interval '7 days'
 and date_local <= current_date;
+
+select * from rainy_hours_last_week;
