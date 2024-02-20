@@ -81,6 +81,9 @@ The `concurrent.futures` module allows for an easier way to run multiple tasks s
 Using **ThreadPoolExecutor** subclass uses a pool of threads to execute calls asynchronously. All threads enqueued to **ThreadPoolExecutor** will be joined before the interpreter can exit.
 
 
+## Creating Fake Weather Data
+
+To test some of the analytical functionality using SQL queries I created a SQL query to generate random data and upload it into a separate table. Later I created a view to join the table with fake data with table with real data. Then this view is used to run analytical SQL queries. The SQL to generate the data is stored in `misc/fake_weather_data_sql.sql` file.
 
 
 ## Future Improvements 

@@ -1,11 +1,47 @@
 
+-- creating a view to join real data with fake one
+create or replace temporary view weather_data_real_fake
+    as
+    select * from weather_data
+union distinct
+select * from weather_copy_2;
+
+select * from weather_data_real_fake;
+
+
+--  A function to equalize cities names while querying the data
+CREATE OR REPLACE FUNCTION equalize_cities_names(city varchar) RETURNS VARCHAR AS
+$$
+BEGIN
+    CASE city
+        when 'Old Town' then return 'Prague';
+        when 'Sol' then return 'Madrid';
+        when 'Madrid City Center' then return 'Madrid';
+        when 'Eixample' then return 'Barcelona';
+        when 'Altstadt' then return 'Munich';
+        when 'Pigna' then return 'Rome';
+        when 'Trevi' then return 'Rome';
+        when 'Mitte' then return 'Berlin';
+        when 'Novaya Gollandiya' then return 'Saint Petersburg';
+        when 'Podil' then return 'Kyiv';
+        when 'Pushcha-Vodytsya' then return 'Kyiv';
+        when 'Innere Stadt' then return 'Vienna';
+        when 'Alt-KĆ¶lln' then return 'Berlin';
+        ELSE RETURN city;
+    END CASE;
+END
+$$ LANGUAGE plpgsql;
+
+
 -- Creating today's temperature view
 create or replace temporary view temperature_view_today
     as
 select country,
+--        equalize_cities_names(city) as city,
        case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -15,6 +51,7 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
        max(main_temp) as max_temp_today,
@@ -25,20 +62,22 @@ from weather_data
 where date_local >= current_date
 or date_local >= now()::date + interval '1h'
 group by country,
-    case city
-        when 'Old Town' then 'Prague'
-        when 'Sol' then 'Madrid'
-        when 'Eixample' then 'Barcelona'
-        when 'Altstadt' then 'Munich'
-        when 'Pigna' then 'Rome'
-        when 'Trevi' then 'Rome'
-        when 'Mitte' then 'Berlin'
-        when 'Novaya Gollandiya' then 'Saint Petersburg'
-        when 'Podil' then 'Kyiv'
-        when 'Pushcha-Vodytsya' then 'Kyiv'
-        when 'Innere Stadt' then 'Vienna'
-    else city
-    end
+         case city
+           when 'Old Town' then 'Prague'
+           when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
+           when 'Eixample' then 'Barcelona'
+           when 'Altstadt' then 'Munich'
+           when 'Pigna' then 'Rome'
+           when 'Trevi' then 'Rome'
+           when 'Mitte' then 'Berlin'
+           when 'Novaya Gollandiya' then 'Saint Petersburg'
+           when 'Podil' then 'Kyiv'
+           when 'Pushcha-Vodytsya' then 'Kyiv'
+           when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
+       else city
+       end
 order by country, city;
 
 select * from temperature_view_today;
@@ -52,6 +91,7 @@ select country,
        case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -61,6 +101,7 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
        max(main_temp) as max_temp_yesterday,
@@ -73,6 +114,7 @@ group by country,
     case city
         when 'Old Town' then 'Prague'
         when 'Sol' then 'Madrid'
+        when 'Madrid City Center' then 'Madrid'
         when 'Eixample' then 'Barcelona'
         when 'Altstadt' then 'Munich'
         when 'Pigna' then 'Rome'
@@ -82,6 +124,7 @@ group by country,
         when 'Podil' then 'Kyiv'
         when 'Pushcha-Vodytsya' then 'Kyiv'
         when 'Innere Stadt' then 'Vienna'
+        when 'Alt-KĆ¶lln' then 'Berlin'
     else city
     end
 order by country, city;
@@ -97,6 +140,7 @@ select country,
        case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -106,6 +150,7 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
        max(main_temp) as max_temp_current_week,
@@ -118,6 +163,7 @@ group by country,
     case city
         when 'Old Town' then 'Prague'
         when 'Sol' then 'Madrid'
+        when 'Madrid City Center' then 'Madrid'
         when 'Eixample' then 'Barcelona'
         when 'Altstadt' then 'Munich'
         when 'Pigna' then 'Rome'
@@ -127,6 +173,7 @@ group by country,
         when 'Podil' then 'Kyiv'
         when 'Pushcha-Vodytsya' then 'Kyiv'
         when 'Innere Stadt' then 'Vienna'
+        when 'Alt-KĆ¶lln' then 'Berlin'
     else city
     end
 order by country, city;
@@ -143,6 +190,7 @@ select country,
        case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -152,18 +200,22 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
        max(main_temp) as max_temp_current_week,
        min(main_temp) as min_temp_current_week,
        stddev(main_temp) as standard_deviation_temp,
        date_trunc('week', current_date - interval '7 days') as beginning_last_7_days
-from weather_data
-where date_local >= current_date - interval '7 days'
+-- from weather_data
+from weather_data_real_fake
+where date_local >= current_date::date - interval '7 days'
+and date_local <= current_date
 group by country,
     case city
         when 'Old Town' then 'Prague'
         when 'Sol' then 'Madrid'
+        when 'Madrid City Center' then 'Madrid'
         when 'Eixample' then 'Barcelona'
         when 'Altstadt' then 'Munich'
         when 'Pigna' then 'Rome'
@@ -173,6 +225,7 @@ group by country,
         when 'Podil' then 'Kyiv'
         when 'Pushcha-Vodytsya' then 'Kyiv'
         when 'Innere Stadt' then 'Vienna'
+        when 'Alt-KĆ¶lln' then 'Berlin'
     else city
     end
 order by country, city;
@@ -190,6 +243,7 @@ with ranked_temperatures as (
     case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -199,6 +253,7 @@ with ranked_temperatures as (
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp,
@@ -213,6 +268,7 @@ select
   case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -222,6 +278,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
   max(main_temp) as temp_min_max_hourly,
@@ -236,6 +293,7 @@ and
 group by case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -245,6 +303,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp, date_local
@@ -255,6 +314,7 @@ select
   case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -264,6 +324,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
   min(main_temp) as temp_min_max_hourly,
@@ -278,6 +339,7 @@ and
 group by case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -287,6 +349,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp, date_local
@@ -305,6 +368,7 @@ with ranked_temperatures as (
     case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -314,6 +378,7 @@ with ranked_temperatures as (
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp,
@@ -328,6 +393,7 @@ select
   case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -337,6 +403,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
   max(main_temp) as temp_min_max_daily,
@@ -351,6 +418,7 @@ and
 group by case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -360,6 +428,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp, date_local
@@ -370,6 +439,7 @@ select
   case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -379,6 +449,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
   min(main_temp) as temp_min_max_daily,
@@ -393,6 +464,7 @@ and
 group by case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -402,6 +474,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp, date_local
@@ -420,6 +493,7 @@ with ranked_temperatures as (
     case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -429,6 +503,7 @@ with ranked_temperatures as (
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp,
@@ -443,6 +518,7 @@ select
   case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -452,6 +528,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
   max(main_temp) as temp_min_max_weekly,
@@ -466,6 +543,7 @@ and
 group by case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -475,6 +553,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp, date_local
@@ -485,6 +564,7 @@ select
   case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -494,6 +574,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
   min(main_temp) as temp_min_max_weekly,
@@ -508,6 +589,7 @@ and
 group by case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
+           when 'Madrid City Center' then 'Madrid'
            when 'Eixample' then 'Barcelona'
            when 'Altstadt' then 'Munich'
            when 'Pigna' then 'Rome'
@@ -517,6 +599,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
     main_temp, date_local

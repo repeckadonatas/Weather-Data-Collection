@@ -1,5 +1,6 @@
 select * from weather_data
-order by longitude, latitude, country, date_vilnius, date_local;
+order by longitude, latitude, country, date_vilnius, date_local
+limit 200;
 
 select longitude, latitude, city, main_temp, date_vilnius, date_local
 from weather_data

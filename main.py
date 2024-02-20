@@ -110,7 +110,7 @@ if __name__ == '__main__':
         this_event = threading.Event()
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             download_data = executor.submit(download_data)  # <- Producer
-            time.sleep(10)
+            time.sleep(5)
 
             for _ in concurrent.futures.as_completed([download_data]):
                 processing_data = executor.submit(processing_data, dataframe_queue, this_event)  # <- Consumer/Producer
