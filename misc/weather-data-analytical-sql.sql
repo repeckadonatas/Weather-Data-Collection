@@ -13,20 +13,21 @@ select * from weather_data_real_fake;
 CREATE OR REPLACE FUNCTION equalize_cities_names(city varchar) RETURNS VARCHAR AS
 $$
 BEGIN
-    CASE city
-        when 'Old Town' then return 'Prague';
-        when 'Sol' then return 'Madrid';
-        when 'Madrid City Center' then return 'Madrid';
-        when 'Eixample' then return 'Barcelona';
-        when 'Altstadt' then return 'Munich';
-        when 'Pigna' then return 'Rome';
-        when 'Trevi' then return 'Rome';
-        when 'Mitte' then return 'Berlin';
-        when 'Novaya Gollandiya' then return 'Saint Petersburg';
-        when 'Podil' then return 'Kyiv';
-        when 'Pushcha-Vodytsya' then return 'Kyiv';
-        when 'Innere Stadt' then return 'Vienna';
-        when 'Alt-KĆ¶lln' then return 'Berlin';
+    CASE
+        when city = 'Old Town' then return city = 'Prague';
+        when city = 'Sol' then return city = 'Madrid';
+        when city = 'Madrid City Center' then return city = 'Madrid';
+        when city = 'Eixample' then return city = 'Barcelona';
+        when city = 'Altstadt' then return city = 'Munich';
+        when city = 'Pigna' then return city = 'Rome';
+        when city = 'Trevi' then return city = 'Rome';
+        when city = 'Mitte' then return city = 'Berlin';
+        when city = 'Alt-KĆ¶lln' then return city = 'Berlin';
+        when city = 'Novaya Gollandiya' then return city = 'Saint Petersburg';
+        when city = 'Podil' then return city = 'Kyiv';
+        when city = 'Pushcha-Vodytsya' then return city = 'Kyiv';
+        when city = 'Innere Stadt' then return city = 'Vienna';
+        when city = 'Inner city' then return city = 'Vienna';
         ELSE RETURN city;
     END CASE;
 END
@@ -37,7 +38,6 @@ $$ LANGUAGE plpgsql;
 create or replace temporary view temperature_view_today
     as
 select country,
---        equalize_cities_names(city) as city,
        case city
            when 'Old Town' then 'Prague'
            when 'Sol' then 'Madrid'
@@ -51,6 +51,7 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -75,9 +76,28 @@ group by country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end
+order by country, city;
+
+select * from temperature_view_today;
+
+
+
+create or replace temporary view temperature_view_today
+    as
+select country,
+       equalize_cities_names(city) as city,
+       max(main_temp) as max_temp_today,
+       min(main_temp) as min_temp_today,
+       stddev(main_temp) as standard_deviation_temp_today,
+       current_date as date_today
+from weather_data
+where date_local >= current_date
+or date_local >= now()::date + interval '1h'
+group by country, city
 order by country, city;
 
 select * from temperature_view_today;
@@ -101,6 +121,7 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -124,12 +145,31 @@ group by country,
         when 'Podil' then 'Kyiv'
         when 'Pushcha-Vodytsya' then 'Kyiv'
         when 'Innere Stadt' then 'Vienna'
+        when 'Inner city' then 'Vienna'
         when 'Alt-KĆ¶lln' then 'Berlin'
     else city
     end
 order by country, city;
 
 select * from temperature_view_yesterday;
+
+
+
+create or replace temporary view temperature_view_yesterday
+    as
+select country,
+       equalize_cities_names(city) as city,
+       max(main_temp) as max_temp_today,
+       min(main_temp) as min_temp_today,
+       stddev(main_temp) as standard_deviation_temp_today,
+       current_date as date_today
+from weather_data
+where date_local >= current_date - 1
+group by country, city
+order by country, city;
+
+select * from temperature_view_yesterday;
+
 
 
 
@@ -150,6 +190,7 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -173,6 +214,7 @@ group by country,
         when 'Podil' then 'Kyiv'
         when 'Pushcha-Vodytsya' then 'Kyiv'
         when 'Innere Stadt' then 'Vienna'
+        when 'Inner city' then 'Vienna'
         when 'Alt-KĆ¶lln' then 'Berlin'
     else city
     end
@@ -200,6 +242,7 @@ select country,
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -225,6 +268,7 @@ group by country,
         when 'Podil' then 'Kyiv'
         when 'Pushcha-Vodytsya' then 'Kyiv'
         when 'Innere Stadt' then 'Vienna'
+        when 'Inner city' then 'Vienna'
         when 'Alt-KĆ¶lln' then 'Berlin'
     else city
     end
@@ -253,6 +297,7 @@ with ranked_temperatures as (
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -278,6 +323,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -303,6 +349,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -324,6 +371,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -349,6 +397,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -378,6 +427,7 @@ with ranked_temperatures as (
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -403,6 +453,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -428,6 +479,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -449,6 +501,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -474,6 +527,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -503,6 +557,7 @@ with ranked_temperatures as (
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -528,6 +583,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -553,6 +609,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -574,6 +631,7 @@ select
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
@@ -599,6 +657,7 @@ group by case city
            when 'Podil' then 'Kyiv'
            when 'Pushcha-Vodytsya' then 'Kyiv'
            when 'Innere Stadt' then 'Vienna'
+           when 'Inner city' then 'Vienna'
            when 'Alt-KĆ¶lln' then 'Berlin'
        else city
        end,
