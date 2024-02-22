@@ -18,6 +18,13 @@ This project is an exercise in building a working data pipeline model. The model
 
 ## How To Use The Program
 
+Prior to running the program, dependencies from `pyproject.toml` file should be installed. Use `Poetry` package to install project dependencies:
+* `pip install poetry`
+* `poetry install --no-root`
+
+The basic usage on `Poetry` is **[here](https://python-poetry.org/docs/basic-usage/#installing-dependencies)**.
+Once dependency installation is completed, the program can now be used. 
+
 To use the program, run the _`main.py`_ file. Once started, the API data download will begin, followed by data preparation and then data upload to a table on a database.
 
 The program runs automatically on a set schedule (once per hour every day). The schedule is set using cron. Alternatively, a schedule is also set using Windows Task Scheduler.
